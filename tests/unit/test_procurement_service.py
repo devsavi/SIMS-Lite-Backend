@@ -624,11 +624,10 @@ async def test_grn_approve_posts_inventory():
     svc._pos.get_active.return_value = po
     svc._pos.update.return_value = po
 
-    from sqlalchemy import update as sa_update
-
     with patch("app.services.procurement.ws_manager") as mock_ws:
         mock_ws.broadcast_json = AsyncMock()
-        result = await svc.approve(grn.id, actor=actor)
+        with patch("app.services.inventory.InventoryService.apply_grn_receipt", new=AsyncMock()) as mock_apply:
+            result = await svc.approve(grn.id, actor=actor)
 
     # Verify ledger append was called for each GRN item
     svc._ledger.append.assert_called_once()
@@ -714,7 +713,8 @@ async def test_grn_approve_partial_delivery_sets_po_status():
 
     with patch("app.services.procurement.ws_manager") as mock_ws:
         mock_ws.broadcast_json = AsyncMock()
-        result = await svc.approve(grn.id, actor=actor)
+        with patch("app.services.inventory.InventoryService.apply_grn_receipt", new=AsyncMock()):
+            result = await svc.approve(grn.id, actor=actor)
 
     # Verify PO status was updated (mocked session won't reflect in-memory update)
     svc._pos.update.assert_called_once()

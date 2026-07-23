@@ -51,6 +51,16 @@ class EventType(StrEnum):
     GRN_APPROVED = "procurement.grn_approved"
     GRN_CANCELLED = "procurement.grn_cancelled"
 
+    # Inventory — Phase 4
+    INVENTORY_INCREASED = "inventory.increased"
+    INVENTORY_DECREASED = "inventory.decreased"
+    INVENTORY_LOW_STOCK = "inventory.low_stock"
+    INVENTORY_OUT_OF_STOCK = "inventory.out_of_stock"
+    STOCK_ADJUSTMENT_CREATED = "inventory.adjustment_created"
+    STOCK_ADJUSTMENT_SUBMITTED = "inventory.adjustment_submitted"
+    STOCK_ADJUSTMENT_APPROVED = "inventory.adjustment_approved"
+    STOCK_ADJUSTMENT_CANCELLED = "inventory.adjustment_cancelled"
+
 
 class WebSocketEvent(BaseModel):
     """Typed envelope for every WebSocket message."""

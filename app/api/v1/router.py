@@ -18,6 +18,14 @@ from app.api.v1.endpoints import brands, categories, products, reports, supplier
 # Phase 3 — Procurement
 from app.api.v1.endpoints import grns, inventory, procurement_reports, purchase_orders
 
+# Phase 4 — Inventory Engine
+from app.api.v1.endpoints import (
+    inventory_dashboard,
+    inventory_ledger,
+    inventory_reports,
+    stock_adjustments,
+)
+
 api_router = APIRouter()
 
 # ---------------------------------------------------------------------------
@@ -60,12 +68,36 @@ api_router.include_router(
 )
 api_router.include_router(grns.router, prefix="/grns", tags=["GRNs"])
 api_router.include_router(
+    procurement_reports.router,
+    prefix="/procurement",
+    tags=["Procurement Reports & Dashboard"],
+)
+
+# ---------------------------------------------------------------------------
+# Phase 4 — Inventory Engine
+# ---------------------------------------------------------------------------
+api_router.include_router(
     inventory.router,
     prefix="/inventory",
     tags=["Inventory"],
 )
 api_router.include_router(
-    procurement_reports.router,
-    prefix="/procurement",
-    tags=["Procurement Reports & Dashboard"],
+    stock_adjustments.router,
+    prefix="/stock-adjustments",
+    tags=["Stock Adjustments"],
+)
+api_router.include_router(
+    inventory_ledger.router,
+    prefix="/inventory-ledger",
+    tags=["Inventory Ledger"],
+)
+api_router.include_router(
+    inventory_dashboard.router,
+    prefix="/dashboard",
+    tags=["Dashboard"],
+)
+api_router.include_router(
+    inventory_reports.router,
+    prefix="/inventory-reports",
+    tags=["Inventory Reports"],
 )

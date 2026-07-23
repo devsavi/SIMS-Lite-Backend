@@ -713,6 +713,11 @@ class GRNService:
         if grn.status != GRNStatus.SUBMITTED:
             raise ValidationError(f"Cannot approve GRN in {grn.status} status.")
 
+        # Import inventory service here to avoid circular imports
+        from app.services.inventory import InventoryService
+
+        inv_svc = InventoryService(self._session)
+
         # Post inventory for each item
         for grn_item in grn.items:
             current_stock = await self._ledger.get_current_stock(grn_item.product_id)
@@ -737,6 +742,15 @@ class GRNService:
                 _sa_update(PurchaseOrderItem)
                 .where(PurchaseOrderItem.id == po_item.id)
                 .values(quantity_received=new_received)
+            )
+            # Update Phase 4 inventory table
+            await inv_svc.apply_grn_receipt(
+                product_id=grn_item.product_id,
+                quantity=qty_change,
+                unit_cost=float(grn_item.unit_cost),
+                grn_id=grn.id,
+                grn_number=grn.grn_number,
+                actor=actor,
             )
 
         # Refresh PO items and update PO status

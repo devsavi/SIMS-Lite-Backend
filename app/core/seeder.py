@@ -66,6 +66,7 @@ SYSTEM_PERMISSIONS: list[dict] = [
     # Inventory (placeholder for later phases)
     {"resource": "inventory", "action": "read", "description": "View inventory"},
     {"resource": "inventory", "action": "write", "description": "Manage inventory"},
+    {"resource": "inventory", "action": "approve", "description": "Approve stock adjustments"},
     # Procurement — Phase 3
     {"resource": "procurement", "action": "read", "description": "View procurement orders"},
     {"resource": "procurement", "action": "write", "description": "Create and update procurement orders"},
@@ -85,7 +86,7 @@ ROLE_PERMISSION_MAP: dict[str, list[tuple[str, str]]] = {
         ("permissions", "read"), ("permissions", "write"),
         ("audit_logs", "read"),
         ("reports", "read"), ("reports", "export"),
-        ("inventory", "read"), ("inventory", "write"),
+        ("inventory", "read"), ("inventory", "write"), ("inventory", "approve"),
         ("procurement", "read"), ("procurement", "write"), ("procurement", "approve"),
         # Phase 2 master data
         ("master_data", "read"), ("master_data", "write"), ("master_data", "delete"),
@@ -99,7 +100,7 @@ ROLE_PERMISSION_MAP: dict[str, list[tuple[str, str]]] = {
         ("master_data", "read"), ("master_data", "write"),
     ],
     "STORE_KEEPER": [
-        ("inventory", "read"), ("inventory", "write"),
+        ("inventory", "read"), ("inventory", "write"), ("inventory", "approve"),
         ("procurement", "read"),
         # Phase 2 — read-only master data
         ("master_data", "read"),
