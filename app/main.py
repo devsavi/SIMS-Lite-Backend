@@ -53,6 +53,16 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     await init_redis()
     await init_minio()
 
+    # Phase 1 — Seed initial roles, permissions, and superuser
+    from app.database.engine import get_session_factory
+    from app.core.seeder import seed_initial_data
+
+    async with get_session_factory()() as session:
+        try:
+            await seed_initial_data(session)
+        except Exception as exc:
+            logger.error("Database seeder failed", error=str(exc))
+
     logger.info("All services initialised — application ready")
 
     yield  # Application is now serving requests
@@ -77,10 +87,11 @@ def create_app() -> FastAPI:
         title=settings.app_name,
         description=(
             "SIMS Lite — School Information Management System backend API.\n\n"
-            "**Phase 0**: Infrastructure foundation only.\n"
-            "Business modules are added in subsequent phases."
+            "**Phase 1**: Authentication, User Management, RBAC.\n\n"
+            "Authentication uses JWT Bearer tokens. Use `/api/v1/auth/login` "
+            "to obtain tokens, then click **Authorize** and paste your access token."
         ),
-        version="0.1.0",
+        version="1.0.0",
         docs_url="/docs",
         redoc_url="/redoc",
         openapi_url="/openapi.json",
