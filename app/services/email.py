@@ -138,6 +138,28 @@ class EmailService:
         )
         await self.send(to_email=to_email, subject=subject, html_body=html)
 
+    async def send_notification(
+        self,
+        *,
+        to_email: str,
+        full_name: str,
+        title: str,
+        message: str,
+        notification_type: str = "INFO",
+        priority: str = "NORMAL",
+    ) -> None:
+        """Send a notification email."""
+        subject = f"{settings.app_name} — {title}"
+        html = _NOTIFICATION_TEMPLATE.format(
+            app_name=settings.app_name,
+            full_name=full_name,
+            title=title,
+            message=message,
+            notification_type=notification_type,
+            priority=priority,
+        )
+        await self.send(to_email=to_email, subject=subject, html_body=html)
+
 
 # ---------------------------------------------------------------------------
 # HTML email templates
@@ -203,6 +225,23 @@ _WELCOME_TEMPLATE = """
   <hr style="border:none;border-top:1px solid #ddd;margin:24px 0">
   <p style="font-size:12px;color:#777">
     This is an automated message from {app_name}. Please do not reply.
+  </p>
+</div>
+""".replace("{style}", _BASE_STYLE)
+
+
+_NOTIFICATION_TEMPLATE = """
+<div style="{style}">
+  <h2 style="color:#1a73e8">{app_name}</h2>
+  <h3>{title}</h3>
+  <p>Hello {full_name},</p>
+  <p>{message}</p>
+  <p style="font-size:12px;color:#888">
+    Type: {notification_type} | Priority: {priority}
+  </p>
+  <hr style="border:none;border-top:1px solid #ddd;margin:24px 0">
+  <p style="font-size:12px;color:#777">
+    This is an automated notification from {app_name}. Please do not reply.
   </p>
 </div>
 """.replace("{style}", _BASE_STYLE)

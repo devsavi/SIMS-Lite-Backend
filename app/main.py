@@ -65,10 +65,17 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
     logger.info("All services initialised — application ready")
 
+    # Phase 6A — Start WebSocket Redis subscriber
+    from app.websockets.manager import ws_manager
+    await ws_manager.start_redis_subscriber()
+
     yield  # Application is now serving requests
 
     # --- Shutdown ---
     logger.info("Shutting down SIMS Lite Backend")
+
+    # Phase 6A — Stop WebSocket Redis subscriber
+    await ws_manager.stop_redis_subscriber()
 
     from app.database.engine import close_db
     from app.core.redis import close_redis

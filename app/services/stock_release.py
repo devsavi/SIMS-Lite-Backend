@@ -149,6 +149,15 @@ class StockReleaseService:
             )
         )
 
+        # Auto-notification: notify admins of new stock release
+        try:
+            from app.services.notification import NotificationEventService
+
+            notifier = NotificationEventService(self._session)
+            await notifier.notify_stock_release_created(release_number, sr.id, actor)
+        except Exception:  # noqa: BLE001
+            logger.warning("Stock release create notification failed", sr_id=str(sr.id))
+
         return await self._sr.get_active(sr.id)  # type: ignore[return-value]
 
     async def get(self, sr_id: uuid.UUID) -> StockRelease:
@@ -316,6 +325,15 @@ class StockReleaseService:
             )
         )
 
+        # Auto-notification: notify admins of pending approval
+        try:
+            from app.services.notification import NotificationEventService
+
+            notifier = NotificationEventService(self._session)
+            await notifier.notify_stock_release_submitted(sr.release_number, sr_id, actor)
+        except Exception:  # noqa: BLE001
+            logger.warning("Stock release submit notification failed", sr_id=str(sr_id))
+
         return await self._sr.get_active(sr_id)  # type: ignore[return-value]
 
     async def approve(
@@ -441,6 +459,18 @@ class StockReleaseService:
             )
         )
 
+        # Auto-notification: notify requester of approval
+        try:
+            from app.services.notification import NotificationEventService
+
+            notifier = NotificationEventService(self._session)
+            if sr.created_by_id:
+                await notifier.notify_stock_release_approved(
+                    sr.release_number, sr_id, actor, sr.created_by_id
+                )
+        except Exception:  # noqa: BLE001
+            logger.warning("Stock release approve notification failed", sr_id=str(sr_id))
+
         return await self._sr.get_active(sr_id)  # type: ignore[return-value]
 
     async def cancel(
@@ -486,6 +516,18 @@ class StockReleaseService:
                 },
             )
         )
+
+        # Auto-notification: notify requester of cancellation
+        try:
+            from app.services.notification import NotificationEventService
+
+            notifier = NotificationEventService(self._session)
+            if sr.created_by_id:
+                await notifier.notify_stock_release_cancelled(
+                    sr.release_number, sr_id, actor, sr.created_by_id
+                )
+        except Exception:  # noqa: BLE001
+            logger.warning("Stock release cancel notification failed", sr_id=str(sr_id))
 
         return await self._sr.get_active(sr_id)  # type: ignore[return-value]
 

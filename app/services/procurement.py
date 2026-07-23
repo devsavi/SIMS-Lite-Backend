@@ -161,6 +161,14 @@ class PurchaseOrderService:
                 {"po_number": po.po_number, "supplier": supplier.name, "total": float(po.total_amount)},
             )
         )
+        # Auto-notification: notify admins of new PO
+        try:
+            from app.services.notification import NotificationEventService
+
+            notifier = NotificationEventService(self._session)
+            await notifier.notify_po_created(po.po_number, po.id, actor)
+        except Exception:  # noqa: BLE001
+            logger.warning("PO create notification failed", po_id=str(po.id))
         return po
 
     async def get(self, pk: uuid.UUID) -> PurchaseOrder:
@@ -311,6 +319,14 @@ class PurchaseOrderService:
                 {"po_number": po.po_number, "submitted_by": actor.full_name},
             )
         )
+        # Auto-notification: notify admins PO awaiting approval
+        try:
+            from app.services.notification import NotificationEventService
+
+            notifier = NotificationEventService(self._session)
+            await notifier.notify_po_submitted(po.po_number, po.id, actor)
+        except Exception:  # noqa: BLE001
+            logger.warning("PO submit notification failed", po_id=str(pk))
         return po
 
     async def approve(
@@ -340,6 +356,15 @@ class PurchaseOrderService:
                 {"po_number": po.po_number, "approved_by": actor.full_name},
             )
         )
+        # Auto-notification: notify requester their PO was approved
+        try:
+            from app.services.notification import NotificationEventService
+
+            notifier = NotificationEventService(self._session)
+            if po.created_by_id:
+                await notifier.notify_po_approved(po.po_number, po.id, actor, po.created_by_id)
+        except Exception:  # noqa: BLE001
+            logger.warning("PO approve notification failed", po_id=str(pk))
         return po
 
     async def reject(
@@ -376,6 +401,15 @@ class PurchaseOrderService:
                 {"po_number": po.po_number, "reason": reason},
             )
         )
+        # Auto-notification: notify requester their PO was rejected
+        try:
+            from app.services.notification import NotificationEventService
+
+            notifier = NotificationEventService(self._session)
+            if po.created_by_id:
+                await notifier.notify_po_rejected(po.po_number, po.id, actor, po.created_by_id, reason)
+        except Exception:  # noqa: BLE001
+            logger.warning("PO reject notification failed", po_id=str(pk))
         return po
 
     async def cancel(
@@ -412,6 +446,15 @@ class PurchaseOrderService:
                 {"po_number": po.po_number, "reason": reason},
             )
         )
+        # Auto-notification: notify requester their PO was cancelled
+        try:
+            from app.services.notification import NotificationEventService
+
+            notifier = NotificationEventService(self._session)
+            if po.created_by_id:
+                await notifier.notify_po_cancelled(po.po_number, po.id, actor, po.created_by_id)
+        except Exception:  # noqa: BLE001
+            logger.warning("PO cancel notification failed", po_id=str(pk))
         return po
 
     async def duplicate(
@@ -590,6 +633,14 @@ class GRNService:
                 {"grn_number": grn.grn_number, "po_number": po.po_number},
             )
         )
+        # Auto-notification: notify admins of new GRN
+        try:
+            from app.services.notification import NotificationEventService
+
+            notifier = NotificationEventService(self._session)
+            await notifier.notify_grn_created(grn.grn_number, grn.id, actor)
+        except Exception:  # noqa: BLE001
+            logger.warning("GRN create notification failed", grn_id=str(grn.id))
         return grn
 
     async def get(self, pk: uuid.UUID) -> GRN:
@@ -796,6 +847,14 @@ class GRNService:
                 {"grn_number": grn.grn_number},
             )
         )
+        # Auto-notification: notify store keepers stock has been updated
+        try:
+            from app.services.notification import NotificationEventService
+
+            notifier = NotificationEventService(self._session)
+            await notifier.notify_grn_approved(grn.grn_number, grn.id, actor)
+        except Exception:  # noqa: BLE001
+            logger.warning("GRN approve notification failed", grn_id=str(pk))
         return grn
 
     async def cancel(
@@ -832,6 +891,14 @@ class GRNService:
                 {"grn_number": grn.grn_number, "reason": reason},
             )
         )
+        # Auto-notification: notify admins of GRN cancellation
+        try:
+            from app.services.notification import NotificationEventService
+
+            notifier = NotificationEventService(self._session)
+            await notifier.notify_grn_cancelled(grn.grn_number, grn.id, actor)
+        except Exception:  # noqa: BLE001
+            logger.warning("GRN cancel notification failed", grn_id=str(pk))
         return grn
 
     async def get_for_report(

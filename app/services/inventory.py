@@ -228,7 +228,7 @@ class InventoryService:
         # Publish WebSocket event
         qty_after = float(inv.quantity_on_hand)
         product = inv.product
-        await ws_manager.broadcast(
+        await ws_manager.broadcast_json(
             make_event(
                 EventType.INVENTORY_INCREASED,
                 {
@@ -249,7 +249,7 @@ class InventoryService:
         return entry
 
     async def _publish_stock_alerts(self, inv: Inventory) -> None:
-        """Publish low-stock / out-of-stock WebSocket events if thresholds crossed."""
+        """Publish low-stock / out-of-stock WebSocket events and notifications if thresholds crossed."""
         product = inv.product
         if not product:
             return
@@ -257,7 +257,7 @@ class InventoryService:
         reorder = int(product.reorder_level or 0)
 
         if qty <= 0:
-            await ws_manager.broadcast(
+            await ws_manager.broadcast_json(
                 make_event(
                     EventType.INVENTORY_OUT_OF_STOCK,
                     {
@@ -268,8 +268,16 @@ class InventoryService:
                     },
                 )
             )
+            # Persistent notification
+            try:
+                from app.services.notification import NotificationEventService
+
+                notifier = NotificationEventService(self._session)
+                await notifier.notify_out_of_stock(product.name, inv.product_id)
+            except Exception:  # noqa: BLE001
+                logger.warning("Out-of-stock notification failed", product_id=str(inv.product_id))
         elif reorder > 0 and qty <= reorder:
-            await ws_manager.broadcast(
+            await ws_manager.broadcast_json(
                 make_event(
                     EventType.INVENTORY_LOW_STOCK,
                     {
@@ -281,6 +289,14 @@ class InventoryService:
                     },
                 )
             )
+            # Persistent notification
+            try:
+                from app.services.notification import NotificationEventService
+
+                notifier = NotificationEventService(self._session)
+                await notifier.notify_low_stock(product.name, inv.product_id, qty, float(reorder))
+            except Exception:  # noqa: BLE001
+                logger.warning("Low-stock notification failed", product_id=str(inv.product_id))
 
 
 # ---------------------------------------------------------------------------
@@ -424,7 +440,7 @@ class StockAdjustmentService:
         )
 
         # Publish WebSocket event
-        await ws_manager.broadcast(
+        await ws_manager.broadcast_json(
             make_event(
                 EventType.STOCK_ADJUSTMENT_CREATED,
                 {
@@ -582,7 +598,7 @@ class StockAdjustmentService:
             status="success",
         )
 
-        await ws_manager.broadcast(
+        await ws_manager.broadcast_json(
             make_event(
                 EventType.STOCK_ADJUSTMENT_SUBMITTED,
                 {
@@ -649,7 +665,7 @@ class StockAdjustmentService:
                 if qty_change > 0
                 else EventType.INVENTORY_DECREASED
             )
-            await ws_manager.broadcast(
+            await ws_manager.broadcast_json(
                 make_event(
                     event_type,
                     {
@@ -684,7 +700,7 @@ class StockAdjustmentService:
             status="success",
         )
 
-        await ws_manager.broadcast(
+        await ws_manager.broadcast_json(
             make_event(
                 EventType.STOCK_ADJUSTMENT_APPROVED,
                 {
@@ -727,7 +743,7 @@ class StockAdjustmentService:
             new_values={"reason": reason},
         )
 
-        await ws_manager.broadcast(
+        await ws_manager.broadcast_json(
             make_event(
                 EventType.STOCK_ADJUSTMENT_CANCELLED,
                 {

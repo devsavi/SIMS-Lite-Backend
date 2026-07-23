@@ -67,6 +67,14 @@ class EventType(StrEnum):
     STOCK_RELEASE_APPROVED = "stock_release.approved"
     STOCK_RELEASE_CANCELLED = "stock_release.cancelled"
 
+    # Notifications — Phase 6A
+    NOTIFICATION_NEW = "notification.new"
+    NOTIFICATION_READ = "notification.read"
+    NOTIFICATION_ALL_READ = "notification.all_read"
+    NOTIFICATION_DELETED = "notification.deleted"
+    NOTIFICATION_BROADCAST = "notification.broadcast"
+    NOTIFICATION_UNREAD_COUNT = "notification.unread_count"
+
 
 class WebSocketEvent(BaseModel):
     """Typed envelope for every WebSocket message."""

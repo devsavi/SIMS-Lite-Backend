@@ -316,7 +316,7 @@ async def test_stock_adjustment_create_success():
     )
 
     with patch("app.services.inventory.ws_manager") as mock_ws:
-        mock_ws.broadcast = AsyncMock()
+        mock_ws.broadcast_json = AsyncMock()
         result = await svc.create(payload, actor=actor)
 
     assert result is adj
@@ -418,7 +418,7 @@ async def test_stock_adjustment_submit_success():
     svc._adj.get_active.side_effect = [adj_draft, adj_submitted]
 
     with patch("app.services.inventory.ws_manager") as mock_ws:
-        mock_ws.broadcast = AsyncMock()
+        mock_ws.broadcast_json = AsyncMock()
         result = await svc.submit(adj_draft.id, actor=actor)
 
     assert result.status == StockAdjustmentStatus.SUBMITTED
@@ -486,7 +486,7 @@ async def test_stock_adjustment_approve_increase_adds_stock():
     mock_entry = MagicMock(spec=InventoryLedgerEntry)
 
     with patch("app.services.inventory.ws_manager") as mock_ws:
-        mock_ws.broadcast = AsyncMock()
+        mock_ws.broadcast_json = AsyncMock()
         with patch(
             "app.services.inventory._apply_inventory_change",
             new=AsyncMock(return_value=mock_entry),
@@ -540,7 +540,7 @@ async def test_stock_adjustment_approve_decrease_removes_stock():
     mock_entry = MagicMock(spec=InventoryLedgerEntry)
 
     with patch("app.services.inventory.ws_manager") as mock_ws:
-        mock_ws.broadcast = AsyncMock()
+        mock_ws.broadcast_json = AsyncMock()
         with patch(
             "app.services.inventory._apply_inventory_change",
             new=AsyncMock(return_value=mock_entry),
@@ -584,7 +584,7 @@ async def test_stock_adjustment_cancel_success():
     svc._adj.get_active.side_effect = [adj_draft, adj_cancelled]
 
     with patch("app.services.inventory.ws_manager") as mock_ws:
-        mock_ws.broadcast = AsyncMock()
+        mock_ws.broadcast_json = AsyncMock()
         result = await svc.cancel(adj_draft.id, "Not needed", actor=actor)
 
     assert result.status == StockAdjustmentStatus.CANCELLED

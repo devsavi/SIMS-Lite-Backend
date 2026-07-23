@@ -32,6 +32,12 @@ from app.api.v1.endpoints import (
     stock_release_reports,
 )
 
+# Phase 6A — Notifications
+from app.api.v1.endpoints import (
+    notifications,
+    admin_notifications,
+)
+
 api_router = APIRouter()
 
 # ---------------------------------------------------------------------------
@@ -120,4 +126,18 @@ api_router.include_router(
     stock_release_reports.router,
     prefix="/stock-release-reports",
     tags=["Stock Release Reports"],
+)
+
+# ---------------------------------------------------------------------------
+# Phase 6A — Notifications
+# ---------------------------------------------------------------------------
+api_router.include_router(
+    notifications.router,
+    prefix="/notifications",
+    tags=["Notifications"],
+)
+api_router.include_router(
+    admin_notifications.router,
+    prefix="/admin/notifications",
+    tags=["Admin Notifications"],
 )

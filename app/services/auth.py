@@ -143,6 +143,16 @@ class AuthService:
             logger.warning("Verification email failed to send", email=email)
 
         logger.info("User registered", user_id=str(user.id), email=email)
+
+        # Auto-notify admins of new registration (best-effort)
+        try:
+            from app.services.notification import NotificationEventService
+
+            notifier = NotificationEventService(self._session)
+            await notifier.notify_user_registered(user)
+        except Exception:  # noqa: BLE001
+            logger.warning("Failed to send registration notification", email=email)
+
         return user
 
     # ------------------------------------------------------------------
@@ -198,6 +208,15 @@ class AuthService:
 
         if not verify_password(payload.password, user.password_hash):
             await _fail("wrong_password", user)
+            # Notify user of failed login attempt (best-effort)
+            try:
+                from app.services.notification import NotificationEventService
+
+                notifier = NotificationEventService(self._session)
+                attempts = (user.failed_login_attempts or 0) + 1
+                await notifier.notify_login_failure(user, attempts)
+            except Exception:  # noqa: BLE001
+                pass
             raise UnauthorizedError("Invalid email or password.")
 
         if not user.is_active:
@@ -407,6 +426,15 @@ class AuthService:
             resource_type="User",
             resource_id=str(user.id),
         )
+
+        # Auto-notify user of successful password reset (best-effort)
+        try:
+            from app.services.notification import NotificationEventService
+
+            notifier = NotificationEventService(self._session)
+            await notifier.notify_password_reset(user)
+        except Exception:  # noqa: BLE001
+            pass
 
         logger.info("Password reset", user_id=str(user.id))
 
