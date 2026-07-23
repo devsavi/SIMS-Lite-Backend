@@ -40,6 +40,17 @@ class EventType(StrEnum):
     # Broadcast (placeholder)
     BROADCAST = "system.broadcast"
 
+    # Procurement — Phase 3
+    PO_CREATED = "procurement.po_created"
+    PO_SUBMITTED = "procurement.po_submitted"
+    PO_APPROVED = "procurement.po_approved"
+    PO_REJECTED = "procurement.po_rejected"
+    PO_CANCELLED = "procurement.po_cancelled"
+    PO_EMAILED = "procurement.po_emailed"
+    GRN_CREATED = "procurement.grn_created"
+    GRN_APPROVED = "procurement.grn_approved"
+    GRN_CANCELLED = "procurement.grn_cancelled"
+
 
 class WebSocketEvent(BaseModel):
     """Typed envelope for every WebSocket message."""

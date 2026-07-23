@@ -15,6 +15,9 @@ from app.api.v1.endpoints import auth, permissions, profile, roles, users
 # Phase 2 — Master Data Management
 from app.api.v1.endpoints import brands, categories, products, reports, suppliers, uoms
 
+# Phase 3 — Procurement
+from app.api.v1.endpoints import grns, inventory, procurement_reports, purchase_orders
+
 api_router = APIRouter()
 
 # ---------------------------------------------------------------------------
@@ -46,3 +49,23 @@ api_router.include_router(uoms.router, prefix="/uoms", tags=["Units of Measure"]
 api_router.include_router(suppliers.router, prefix="/suppliers", tags=["Suppliers"])
 api_router.include_router(products.router, prefix="/products", tags=["Products"])
 api_router.include_router(reports.router, prefix="/reports", tags=["Reports"])
+
+# ---------------------------------------------------------------------------
+# Phase 3 — Procurement
+# ---------------------------------------------------------------------------
+api_router.include_router(
+    purchase_orders.router,
+    prefix="/purchase-orders",
+    tags=["Purchase Orders"],
+)
+api_router.include_router(grns.router, prefix="/grns", tags=["GRNs"])
+api_router.include_router(
+    inventory.router,
+    prefix="/inventory",
+    tags=["Inventory"],
+)
+api_router.include_router(
+    procurement_reports.router,
+    prefix="/procurement",
+    tags=["Procurement Reports & Dashboard"],
+)

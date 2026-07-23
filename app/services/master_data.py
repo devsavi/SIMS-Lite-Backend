@@ -86,7 +86,6 @@ class CategoryService:
             is_active=payload.is_active,
         )
         await self._audit.log(
-            self._session,
             actor_id=actor.id,
             action="category:create",
             resource_type="categories",
@@ -155,7 +154,6 @@ class CategoryService:
 
         cat = await self._cats.update(cat, **updates)
         await self._audit.log(
-            self._session,
             actor_id=actor.id,
             action="category:update",
             resource_type="categories",
@@ -176,7 +174,6 @@ class CategoryService:
             deleted_at=datetime.now(UTC),
         )
         await self._audit.log(
-            self._session,
             actor_id=actor.id,
             action="category:delete",
             resource_type="categories",
@@ -199,7 +196,6 @@ class BrandService:
             raise ConflictError(f"Brand '{payload.name}' already exists.")
         brand = await self._brands.create(**payload.model_dump())
         await self._audit.log(
-            self._session,
             actor_id=actor.id,
             action="brand:create",
             resource_type="brands",
@@ -248,7 +244,6 @@ class BrandService:
                 updates[field] = val
         brand = await self._brands.update(brand, **updates)
         await self._audit.log(
-            self._session,
             actor_id=actor.id,
             action="brand:update",
             resource_type="brands",
@@ -269,7 +264,6 @@ class BrandService:
             deleted_at=datetime.now(UTC),
         )
         await self._audit.log(
-            self._session,
             actor_id=actor.id,
             action="brand:delete",
             resource_type="brands",
@@ -294,7 +288,6 @@ class UoMService:
             raise ConflictError(f"UoM symbol '{payload.symbol}' already exists.")
         uom = await self._uoms.create(**payload.model_dump())
         await self._audit.log(
-            self._session,
             actor_id=actor.id,
             action="uom:create",
             resource_type="units_of_measure",
@@ -347,7 +340,6 @@ class UoMService:
                 updates[field] = val
         uom = await self._uoms.update(uom, **updates)
         await self._audit.log(
-            self._session,
             actor_id=actor.id,
             action="uom:update",
             resource_type="units_of_measure",
@@ -368,7 +360,6 @@ class UoMService:
             deleted_at=datetime.now(UTC),
         )
         await self._audit.log(
-            self._session,
             actor_id=actor.id,
             action="uom:delete",
             resource_type="units_of_measure",
@@ -404,7 +395,6 @@ class SupplierService:
         data["supplier_code"] = supplier_code
         supplier = await self._suppliers.create(**data)
         await self._audit.log(
-            self._session,
             actor_id=actor.id,
             action="supplier:create",
             resource_type="suppliers",
@@ -461,7 +451,6 @@ class SupplierService:
 
         supplier = await self._suppliers.update(supplier, **updates)
         await self._audit.log(
-            self._session,
             actor_id=actor.id,
             action="supplier:update",
             resource_type="suppliers",
@@ -482,7 +471,6 @@ class SupplierService:
             deleted_at=datetime.now(UTC),
         )
         await self._audit.log(
-            self._session,
             actor_id=actor.id,
             action="supplier:delete",
             resource_type="suppliers",
@@ -586,7 +574,6 @@ class ProductService:
         product = await self._products.get_active(product.id)
 
         await self._audit.log(
-            self._session,
             actor_id=actor.id,
             action="product:create",
             resource_type="products",
@@ -650,7 +637,6 @@ class ProductService:
         product = await self._products.update(product, **updates)
         product = await self._products.get_active(product.id)
         await self._audit.log(
-            self._session,
             actor_id=actor.id,
             action="product:update",
             resource_type="products",
@@ -677,7 +663,6 @@ class ProductService:
             deleted_at=datetime.now(UTC),
         )
         await self._audit.log(
-            self._session,
             actor_id=actor.id,
             action="product:delete",
             resource_type="products",
@@ -709,7 +694,6 @@ class ProductService:
         product = await self._products.update(product, image_path=object_name)
         product = await self._products.get_active(product.id)
         await self._audit.log(
-            self._session,
             actor_id=actor.id,
             action="product:image_upload",
             resource_type="products",
@@ -733,7 +717,6 @@ class ProductService:
         product = await self._products.update(product, image_path=None)
         product = await self._products.get_active(product.id)
         await self._audit.log(
-            self._session,
             actor_id=actor.id,
             action="product:image_delete",
             resource_type="products",
@@ -771,3 +754,4 @@ class ProductService:
             category_id=category_id,
             supplier_id=supplier_id,
         )
+

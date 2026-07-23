@@ -6,6 +6,7 @@
 |---|---|---|
 | Phase 1 | Authentication & User Management | ✅ Complete |
 | Phase 2 | Master Data Management | ✅ Complete |
+| Phase 3 | Procurement (PO, GRN, Inventory) | ✅ Complete |
 
 ---
 
@@ -119,11 +120,14 @@ bash scripts/start.sh
 ## Running tests
 
 ```bash
-# All tests (136 tests across Phase 1 + Phase 2)
+# All tests (182 tests across Phase 1 + Phase 2 + Phase 3)
 pytest
 
 # Unit tests only (no external services needed)
 pytest tests/unit/
+
+# Phase 3 procurement tests
+pytest tests/unit/test_procurement_service.py tests/api/test_procurement_endpoints.py -v
 
 # Phase 2 master data tests only
 pytest tests/unit/test_master_data_service.py tests/unit/test_master_data_barcode_report.py tests/api/test_master_data_endpoints.py -v
@@ -133,6 +137,42 @@ pytest --cov=app --cov-report=term-missing
 
 # Single file
 pytest tests/api/test_health.py -v
+```
+
+---
+
+## Phase 3 — Procurement quick-start
+
+After applying migrations (`alembic upgrade head`), the procurement workflow is available immediately.
+
+**Default permissions by role:**
+
+| Role | procurement:read | procurement:write | procurement:approve |
+|------|:---:|:---:|:---:|
+| ADMIN | ✅ | ✅ | ✅ |
+| OFFICER | ✅ | ✅ | ❌ |
+| STORE_KEEPER | ✅ | ❌ | ❌ |
+
+**Typical workflow:**
+
+```
+POST   /api/v1/purchase-orders/          → create DRAFT PO
+PATCH  /api/v1/purchase-orders/{id}/submit   → SUBMITTED
+PATCH  /api/v1/purchase-orders/{id}/approve  → APPROVED (Admin)
+POST   /api/v1/purchase-orders/{id}/email    → email to supplier
+POST   /api/v1/grns/                     → create DRAFT GRN
+PATCH  /api/v1/grns/{id}/submit          → SUBMITTED
+PATCH  /api/v1/grns/{id}/approve         → APPROVED + inventory posted (Admin)
+GET    /api/v1/inventory/{product_id}/stock  → current stock level
+```
+
+**Reports & Dashboard:**
+
+```
+GET /api/v1/procurement/dashboard
+GET /api/v1/procurement/reports/purchase-orders
+GET /api/v1/procurement/reports/grns
+GET /api/v1/procurement/reports/supplier-purchases
 ```
 
 ---
