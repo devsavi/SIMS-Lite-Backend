@@ -1,10 +1,19 @@
 # SIMS Lite Backend — Setup Guide
 
+## Implemented Phases
+
+| Phase | Module | Status |
+|---|---|---|
+| Phase 1 | Authentication & User Management | ✅ Complete |
+| Phase 2 | Master Data Management | ✅ Complete |
+
+---
+
 ## Prerequisites
 
 | Tool | Minimum Version |
 |---|---|
-| Python | 3.12 |
+| Python | 3.11+ |
 | Docker | 24+ |
 | Docker Compose | v2 (plugin) |
 | Git | Any recent |
@@ -110,11 +119,14 @@ bash scripts/start.sh
 ## Running tests
 
 ```bash
-# All tests
+# All tests (136 tests across Phase 1 + Phase 2)
 pytest
 
 # Unit tests only (no external services needed)
 pytest tests/unit/
+
+# Phase 2 master data tests only
+pytest tests/unit/test_master_data_service.py tests/unit/test_master_data_barcode_report.py tests/api/test_master_data_endpoints.py -v
 
 # With coverage
 pytest --cov=app --cov-report=term-missing

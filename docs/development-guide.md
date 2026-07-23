@@ -110,6 +110,12 @@ alembic revision --autogenerate -m "add users table"
 alembic upgrade head
 ```
 
+Migration naming convention: `YYYYMMDD_HHMM_<revision_id>_<description>.py`
+
+Existing migrations:
+- `phase1_auth_user_management` — users, roles, permissions, refresh_tokens, audit_logs
+- `phase2_master_data_management` — categories, brands, units_of_measure, suppliers, products
+
 ---
 
 ## Database session usage

@@ -3,8 +3,12 @@
 ## Overview
 
 SIMS Lite Backend is a modular, async-first FastAPI application designed for
-school information management. Phase 0 establishes the infrastructure foundation;
-business modules are added in subsequent phases.
+school information and procurement management.
+
+| Phase | Module | Status |
+|---|---|---|
+| Phase 1 | Authentication & User Management | ✅ Complete |
+| Phase 2 | Master Data Management | ✅ Complete |
 
 ---
 
@@ -86,25 +90,53 @@ app/
 │   ├── config.py           # Pydantic Settings (all env vars)
 │   ├── logging.py          # Structured logging (structlog)
 │   ├── exceptions.py       # Exception hierarchy + global handlers
-│   ├── security.py         # JWT + password helpers (Phase 1 scaffold)
+│   ├── security.py         # JWT + password helpers
+│   ├── deps.py             # FastAPI dependency functions (auth, RBAC)
+│   ├── seeder.py           # Idempotent DB seeder (roles, perms, superuser)
 │   └── redis.py            # Redis client lifecycle
 ├── api/
 │   └── v1/
 │       ├── router.py       # Assembles all v1 endpoint routers
 │       └── endpoints/
-│           ├── health.py   # GET /api/v1/health
-│           ├── system.py   # GET /api/v1/system/health
-│           └── websocket.py
+│           ├── health.py        # GET /api/v1/health
+│           ├── system.py        # GET /api/v1/system/health
+│           ├── websocket.py
+│           ├── auth.py          # Phase 1: JWT auth flows
+│           ├── users.py         # Phase 1: user management
+│           ├── roles.py         # Phase 1: role management
+│           ├── permissions.py   # Phase 1: permission management
+│           ├── profile.py       # Phase 1: self-service profile
+│           ├── categories.py    # Phase 2: category management
+│           ├── brands.py        # Phase 2: brand management
+│           ├── uoms.py          # Phase 2: unit of measure management
+│           ├── suppliers.py     # Phase 2: supplier management
+│           ├── products.py      # Phase 2: product catalogue + images + barcode
+│           └── reports.py       # Phase 2: Excel report export
 ├── database/
 │   ├── base.py             # DeclarativeBase + TimestampMixin + UUIDMixin
 │   ├── engine.py           # Async engine, session factory, get_db dep
 │   └── health.py           # DB ping utility
-├── models/                 # SQLAlchemy ORM models (Phase 1+)
+├── models/
+│   ├── user.py             # Phase 1: User, Role, Permission, RefreshToken
+│   ├── audit_log.py        # Phase 1: AuditLog
+│   └── master_data.py      # Phase 2: Category, Brand, UoM, Supplier, Product
 ├── schemas/
-│   └── base.py             # SuccessResponse, PaginatedResponse, ErrorResponse
-├── services/               # Business logic layer (Phase 1+)
+│   ├── base.py             # SuccessResponse, PaginatedResponse, ErrorResponse
+│   ├── auth.py             # Phase 1: auth request/response schemas
+│   ├── user.py             # Phase 1: user schemas
+│   └── master_data.py      # Phase 2: master data schemas
+├── services/
+│   ├── auth.py             # Phase 1: authentication business logic
+│   ├── user.py             # Phase 1: user management business logic
+│   ├── email.py            # Phase 1: email dispatch
+│   ├── role.py             # Phase 1: role/permission management
+│   ├── master_data.py      # Phase 2: category/brand/uom/supplier/product logic
+│   └── report.py           # Phase 2: Excel report generation
 ├── repositories/
-│   └── base.py             # Generic async CRUD repository
+│   ├── base.py             # Generic async CRUD repository
+│   ├── user.py             # Phase 1: user/role/permission repositories
+│   ├── audit_log.py        # Phase 1: append-only audit log repository
+│   └── master_data.py      # Phase 2: master data repositories
 ├── websockets/
 │   ├── manager.py          # ConnectionManager singleton
 │   └── events.py           # EventType enum + WebSocketEvent schema
@@ -112,7 +144,7 @@ app/
 │   └── minio_client.py     # StorageService (upload/delete/presign)
 ├── middleware/
 │   └── logging.py          # RequestLoggingMiddleware
-└── tasks/                  # Background task scaffold (Phase 1+)
+└── tasks/                  # Background task scaffold (future phases)
 ```
 
 ---
@@ -200,5 +232,8 @@ sequenceDiagram
 | Object storage | MinIO | latest |
 | Validation | Pydantic | v2 |
 | Logging | structlog | 24.2 |
+| Barcode generation | python-barcode | 0.15.1 |
+| Excel reports | openpyxl | 3.1.5 |
+| Image processing | Pillow | 10.4.0 |
 | Containerisation | Docker Compose | v3.9 |
 | Testing | pytest + pytest-asyncio | 8.2 / 0.23 |

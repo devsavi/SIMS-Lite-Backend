@@ -12,6 +12,9 @@ from app.api.v1.endpoints import health, system, websocket
 # Phase 1 — Authentication & User Management
 from app.api.v1.endpoints import auth, permissions, profile, roles, users
 
+# Phase 2 — Master Data Management
+from app.api.v1.endpoints import brands, categories, products, reports, suppliers, uoms
+
 api_router = APIRouter()
 
 # ---------------------------------------------------------------------------
@@ -31,3 +34,15 @@ api_router.include_router(roles.router, prefix="/roles", tags=["Roles"])
 api_router.include_router(
     permissions.router, prefix="/permissions", tags=["Permissions"]
 )
+
+# ---------------------------------------------------------------------------
+# Phase 2 — Master Data Management
+# ---------------------------------------------------------------------------
+api_router.include_router(
+    categories.router, prefix="/categories", tags=["Categories"]
+)
+api_router.include_router(brands.router, prefix="/brands", tags=["Brands"])
+api_router.include_router(uoms.router, prefix="/uoms", tags=["Units of Measure"])
+api_router.include_router(suppliers.router, prefix="/suppliers", tags=["Suppliers"])
+api_router.include_router(products.router, prefix="/products", tags=["Products"])
+api_router.include_router(reports.router, prefix="/reports", tags=["Reports"])
