@@ -26,6 +26,12 @@ from app.api.v1.endpoints import (
     stock_adjustments,
 )
 
+# Phase 5 — Stock Release
+from app.api.v1.endpoints import (
+    stock_releases,
+    stock_release_reports,
+)
+
 api_router = APIRouter()
 
 # ---------------------------------------------------------------------------
@@ -100,4 +106,18 @@ api_router.include_router(
     inventory_reports.router,
     prefix="/inventory-reports",
     tags=["Inventory Reports"],
+)
+
+# ---------------------------------------------------------------------------
+# Phase 5 — Stock Release
+# ---------------------------------------------------------------------------
+api_router.include_router(
+    stock_releases.router,
+    prefix="/stock-releases",
+    tags=["Stock Releases"],
+)
+api_router.include_router(
+    stock_release_reports.router,
+    prefix="/stock-release-reports",
+    tags=["Stock Release Reports"],
 )

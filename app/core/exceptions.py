@@ -170,10 +170,32 @@ async def http_exception_handler(
     )
 
 
+def _sanitize_validation_errors(errors: list[dict]) -> list[dict]:
+    """
+    Strip non-serializable objects from Pydantic v2 error dicts.
+
+    Pydantic v2 may include a raw ``ValueError`` (or other exception) in
+    the ``ctx`` dict.  Standard ``json.dumps`` cannot serialise exception
+    objects, so we replace them with their string representation.
+    """
+    sanitized = []
+    for error in errors:
+        clean = dict(error)
+        if "ctx" in clean and isinstance(clean["ctx"], dict):
+            clean["ctx"] = {
+                k: str(v) if isinstance(v, Exception) else v
+                for k, v in clean["ctx"].items()
+            }
+        # Remove 'url' field added by Pydantic v2 (internal, not useful in API)
+        clean.pop("url", None)
+        sanitized.append(clean)
+    return sanitized
+
+
 async def validation_exception_handler(
     request: Request, exc: RequestValidationError
 ) -> JSONResponse:
-    errors = exc.errors()
+    errors = _sanitize_validation_errors(exc.errors())
     logger.warning(
         "Request validation failed",
         errors=errors,

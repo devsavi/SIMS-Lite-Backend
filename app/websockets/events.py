@@ -61,6 +61,12 @@ class EventType(StrEnum):
     STOCK_ADJUSTMENT_APPROVED = "inventory.adjustment_approved"
     STOCK_ADJUSTMENT_CANCELLED = "inventory.adjustment_cancelled"
 
+    # Stock Release — Phase 5
+    STOCK_RELEASE_CREATED = "stock_release.created"
+    STOCK_RELEASE_SUBMITTED = "stock_release.submitted"
+    STOCK_RELEASE_APPROVED = "stock_release.approved"
+    STOCK_RELEASE_CANCELLED = "stock_release.cancelled"
+
 
 class WebSocketEvent(BaseModel):
     """Typed envelope for every WebSocket message."""
